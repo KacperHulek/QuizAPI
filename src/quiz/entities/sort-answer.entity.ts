@@ -18,6 +18,6 @@ export class SortAnswer {
   question: Question;
 
   @Column()
-  @Field((type) => Int, { nullable: true })
-  order?: number;
+  @Field((type) => Int)
+  order: number;
 }
