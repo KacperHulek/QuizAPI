@@ -1,0 +1,35 @@
+services:
+  nestapp:
+    container_name: nestapp
+    image: kacperxx/nestapp:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    environment:
+      - DB_TYPE=${DB_TYPE}
+      - PG_HOST=${PG_HOST}
+      - PG_USER=${PG_USER}
+      - PG_PASSWORD=${PG_PASSWORD}
+      - PG_DB=${PG_DB}
+      - PG_PORT=${PG_PORT}
+      - PORT=3000
+      - NODE_ENV=dev
+    volumes:
+      - ./src:/usr/src/app/src
+    depends_on:
+      - db
+  db:
+    container_name: ${PG_HOST}
+    image: ${PG_IMAGE}
+    ports:
+      - ${PG_PORT}:${PG_PORT}
+    environment:
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_DB=${PG_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata: {}
