@@ -2,6 +2,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Quiz } from './quiz.entity';
 import { TextAnswer } from './text-answer.entity';
+import { PredefinedAnswer } from './predefined-answer.entity';
 
 @Entity()
 @ObjectType()
@@ -24,4 +25,7 @@ export class Question {
 
   @Field((type) => [TextAnswer])
   textAnswer: TextAnswer[];
+
+  @Field((type) => [PredefinedAnswer])
+  predefinedAnswer: PredefinedAnswer[];
 }
