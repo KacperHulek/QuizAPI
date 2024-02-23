@@ -1,6 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Quiz } from './quiz.entity';
+import { TextAnswer } from './text-answer.entity';
 
 @Entity()
 @ObjectType()
@@ -20,4 +21,7 @@ export class Question {
   @ManyToOne(() => Quiz, (quiz) => quiz.questions)
   @Field((type) => Quiz)
   quiz: Quiz;
+
+  @Field((type) => [TextAnswer])
+  textAnswer: TextAnswer[];
 }
