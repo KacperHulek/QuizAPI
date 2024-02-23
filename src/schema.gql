@@ -39,7 +39,8 @@ type Quiz {
 }
 
 type Query {
-  quiz(id: Int!): Quiz!
+  getAllQuizzes: [Quiz!]!
+  getQuiz(id: Int!): Quiz!
 }
 
 type Mutation {

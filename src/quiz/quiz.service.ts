@@ -89,11 +89,18 @@ export class QuizService {
   }
 
   findAll() {
-    return `This action returns all quiz`;
+    return this.quizzesRepository.find({
+      relations: [
+        'questions',
+        'questions.textAnswers',
+        'questions.predefinedAnswers',
+        'questions.sortAnswers',
+      ],
+    });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} quiz`;
+    return this.quizzesRepository.findOneOrFail({ where: { id } });
   }
 
   update(id: number, updateQuizInput: UpdateQuizInput) {

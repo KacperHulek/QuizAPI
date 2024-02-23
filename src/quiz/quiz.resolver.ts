@@ -13,12 +13,12 @@ export class QuizResolver {
     return this.quizService.create(createQuizInput);
   }
 
-  @Query(() => [Quiz], { name: 'quiz' })
+  @Query(() => [Quiz], { name: 'getAllQuizzes' })
   findAll() {
     return this.quizService.findAll();
   }
 
-  @Query(() => Quiz, { name: 'quiz' })
+  @Query(() => Quiz, { name: 'getQuiz' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.quizService.findOne(id);
   }

@@ -13,6 +13,7 @@ export class Quiz {
   @Field()
   name: string;
 
+  @OneToMany(() => Question, (question) => question.quiz)
   @Field((type) => [Question], { nullable: true })
   questions?: Question[];
 }
