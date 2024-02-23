@@ -27,9 +27,9 @@ type Question {
   content: String!
   type: String!
   quiz: Quiz!
-  textAnswers: [TextAnswer!]!
-  predefinedAnswers: [PredefinedAnswer!]!
-  sortAnswers: [SortAnswer!]!
+  textAnswers: [TextAnswer!]
+  predefinedAnswers: [PredefinedAnswer!]
+  sortAnswers: [SortAnswer!]
 }
 
 type Quiz {

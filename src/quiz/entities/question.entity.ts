@@ -24,12 +24,12 @@ export class Question {
   @Field((type) => Quiz)
   quiz: Quiz;
 
-  @Field((type) => [TextAnswer])
-  textAnswers: TextAnswer[];
+  @Field((type) => [TextAnswer], { nullable: true })
+  textAnswers?: TextAnswer[];
 
-  @Field((type) => [PredefinedAnswer])
-  predefinedAnswers: PredefinedAnswer[];
+  @Field((type) => [PredefinedAnswer], { nullable: true })
+  predefinedAnswers?: PredefinedAnswer[];
 
-  @Field((type) => [SortAnswer])
-  sortAnswers: SortAnswer[];
+  @Field((type) => [SortAnswer], { nullable: true })
+  sortAnswers?: SortAnswer[];
 }

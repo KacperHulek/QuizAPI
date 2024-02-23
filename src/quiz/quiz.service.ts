@@ -53,7 +53,6 @@ export class QuizService {
             }),
           );
           savedQuestion.predefinedAnswers = createdAnswers;
-          return savedQuestion;
         } else if (newQuestion.type === 'Sort') {
           const createdAnswers = await Promise.all(
             answerInputs.map(async (answerInput) => {
@@ -67,8 +66,7 @@ export class QuizService {
               return await this.sortAnswersRepository.save(newAnswer);
             }),
           );
-          savedQuestion.predefinedAnswers = createdAnswers;
-          return savedQuestion;
+          savedQuestion.sortAnswers = createdAnswers;
         } else if (newQuestion.type === 'Text') {
           const createdAnswers = await Promise.all(
             answerInputs.map(async (answerInput) => {
@@ -82,8 +80,8 @@ export class QuizService {
             }),
           );
           savedQuestion.textAnswers = createdAnswers;
-          return savedQuestion;
         }
+        return savedQuestion;
       }),
     );
     savedQuiz.questions = createdQuestions;
