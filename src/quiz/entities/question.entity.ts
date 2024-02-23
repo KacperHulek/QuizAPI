@@ -3,6 +3,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Quiz } from './quiz.entity';
 import { TextAnswer } from './text-answer.entity';
 import { PredefinedAnswer } from './predefined-answer.entity';
+import { SortAnswer } from './sort-answer.entity';
 
 @Entity()
 @ObjectType()
@@ -24,8 +25,11 @@ export class Question {
   quiz: Quiz;
 
   @Field((type) => [TextAnswer])
-  textAnswer: TextAnswer[];
+  textAnswers: TextAnswer[];
 
   @Field((type) => [PredefinedAnswer])
-  predefinedAnswer: PredefinedAnswer[];
+  predefinedAnswers: PredefinedAnswer[];
+
+  @Field((type) => [SortAnswer])
+  sortAnswers: SortAnswer[];
 }

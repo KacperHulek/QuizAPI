@@ -4,7 +4,7 @@ import { Question } from './question.entity';
 
 @Entity()
 @ObjectType()
-export class PredefinedAnswer {
+export class SortAnswer {
   @PrimaryGeneratedColumn()
   @Field((type) => Int)
   id: number;
@@ -13,11 +13,11 @@ export class PredefinedAnswer {
   @Field()
   content: string;
 
-  @ManyToOne(() => Question, (question) => question.predefinedAnswers)
+  @ManyToOne(() => Question, (question) => question.sortAnswers)
   @Field((type) => Question)
   question: Question;
 
   @Column()
-  @Field()
-  isCorrect: boolean;
+  @Field((type) => Int, { nullable: true })
+  order?: number;
 }
