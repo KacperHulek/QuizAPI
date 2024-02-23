@@ -1,0 +1,72 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type TextAnswer {
+  id: Int!
+  content: String!
+  question: Question!
+}
+
+type PredefinedAnswer {
+  id: Int!
+  content: String!
+  question: Question!
+  isCorrect: Boolean!
+}
+
+type SortAnswer {
+  id: Int!
+  content: String!
+  question: Question!
+  order: Int!
+}
+
+type Question {
+  id: Int!
+  content: String!
+  type: String!
+  quiz: Quiz!
+  textAnswers: [TextAnswer!]!
+  predefinedAnswers: [PredefinedAnswer!]!
+  sortAnswers: [SortAnswer!]!
+}
+
+type Quiz {
+  id: Int!
+  name: String!
+  questions: [Question!]
+}
+
+type Query {
+  quiz(id: Int!): Quiz!
+}
+
+type Mutation {
+  createQuiz(createQuizInput: CreateQuizInput!): Quiz!
+  updateQuiz(updateQuizInput: UpdateQuizInput!): Quiz!
+  removeQuiz(id: Int!): Quiz!
+}
+
+input CreateQuizInput {
+  name: String!
+  questions: [CreateQuestionInput!]!
+}
+
+input CreateQuestionInput {
+  content: String!
+  type: String!
+  answers: [CreateAnswerInput!]!
+}
+
+input CreateAnswerInput {
+  content: String!
+  isCorrect: Boolean
+  sortOrder: Int
+}
+
+input UpdateQuizInput {
+  name: String
+  questions: [CreateQuestionInput!]
+  id: Int!
+}

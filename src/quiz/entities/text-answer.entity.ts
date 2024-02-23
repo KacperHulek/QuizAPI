@@ -13,7 +13,7 @@ export class TextAnswer {
   @Field()
   content: string;
 
-  @ManyToOne(() => Question, (question) => question.textAnswer)
+  @ManyToOne(() => Question, (question) => question.textAnswers)
   @Field((type) => Question)
   question: Question;
 }
