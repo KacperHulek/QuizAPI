@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
+import { QuizModule } from './quiz/quiz.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { join } from 'path';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true, //off when in production
     }),
+    QuizModule,
   ],
   controllers: [],
   providers: [],
