@@ -23,11 +23,13 @@ export class QuizResolver {
     return this.quizService.findOne(id);
   }
 
+  //to do
   @Mutation(() => Quiz)
   updateQuiz(@Args('updateQuizInput') updateQuizInput: UpdateQuizInput) {
     return this.quizService.update(updateQuizInput.id, updateQuizInput);
   }
 
+  //to do
   @Mutation(() => Quiz)
   removeQuiz(@Args('id', { type: () => Int }) id: number) {
     return this.quizService.remove(id);

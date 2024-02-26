@@ -41,6 +41,9 @@ export class QuizService {
 
         if (newQuestion.type === 'Predefined') {
           const createdAnswers = await Promise.all(
+            //tu można dodać logikę sprawdzającą czy 'Predefined' ma być single/multiple
+            //na podstawie newQuestion.type
+            //data validation might be necessary
             answerInputs.map(async (answerInput) => {
               const { content: answerContent, isCorrect } = answerInput;
               let newAnswer;
@@ -99,14 +102,35 @@ export class QuizService {
     });
   }
 
-  findOne(id: number) {
-    return this.quizzesRepository.findOneOrFail({ where: { id } });
+  async findOne(id: number): Promise<Quiz> {
+    const quiz = await this.quizzesRepository.findOneOrFail({
+      relations: [
+        'questions',
+        'questions.textAnswers',
+        'questions.predefinedAnswers',
+        'questions.sortAnswers',
+      ],
+      where: { id },
+    });
+    quiz.questions = quiz.questions.filter((question) => {
+      if (question.type === 'Predefined') {
+        return question.predefinedAnswers.length > 0;
+      } else if (question.type === 'Sort') {
+        return question.sortAnswers.length > 0;
+      } else if (question.type === 'Text') {
+        return question.textAnswers.length > 0;
+      }
+      return false; // Unknown question type
+    });
+    return quiz;
   }
 
+  //to do
   update(id: number, updateQuizInput: UpdateQuizInput) {
     return `This action updates a #${id} quiz`;
   }
 
+  //to do
   remove(id: number) {
     return `This action removes a #${id} quiz`;
   }
