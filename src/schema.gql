@@ -41,6 +41,14 @@ type Quiz {
 type Query {
   getAllQuizzes: [Quiz!]!
   getQuiz(id: Int!): Quiz!
+  checkAnswers(quizId: Int!, answers: [UserAnswerDto!]!): [Int!]!
+}
+
+input UserAnswerDto {
+  questionId: Int!
+  selectedAnswers: [Int!]
+  content: String
+  order: [Int!]
 }
 
 type Mutation {

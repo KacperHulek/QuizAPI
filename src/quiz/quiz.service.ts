@@ -8,6 +8,7 @@ import { TextAnswer } from './entities/text-answer.entity';
 import { Repository } from 'typeorm';
 import { PredefinedAnswer } from './entities/predefined-answer.entity';
 import { SortAnswer } from './entities/sort-answer.entity';
+import { UserAnswerDto } from './dto/user-answer.input';
 
 @Injectable()
 export class QuizService {
@@ -123,6 +124,69 @@ export class QuizService {
     });
 
     return quiz;
+  }
+
+  async checkAnswers(
+    quizId: number,
+    answers: UserAnswerDto[],
+  ): Promise<{ obtainedPoints: number; maxPoints: number }> {
+    const quiz = await this.quizzesRepository.findOneOrFail({
+      relations: [
+        'questions',
+        'questions.predefinedAnswers',
+        'questions.textAnswers',
+        'questions.sortAnswers',
+      ],
+      where: { id: quizId },
+    });
+
+    let maxPoints = 0;
+    let obtainedPoints = 0;
+
+    for (const question of quiz.questions) {
+      const userAnswer = answers.find((ans) => ans.questionId === question.id);
+
+      if (!userAnswer) {
+        continue; // Move to the next question if no answer provided by user
+      }
+
+      maxPoints += 1; // Each question has 1 point
+
+      if (question.type === 'Single' || question.type === 'Multiple') {
+        const correctAnswers = question.predefinedAnswers.filter(
+          (ans) => ans.isCorrect,
+        );
+        const userSelectedAnswers = userAnswer.selectedAnswers || [];
+
+        const correct = correctAnswers.every((ans) =>
+          userSelectedAnswers.includes(ans.id),
+        );
+        if (correct) {
+          obtainedPoints += 1;
+        }
+      } else if (question.type === 'Text') {
+        const correctAnswers = question.textAnswers.map((ans) =>
+          ans.content.toLowerCase().trim(),
+        );
+        const userProvidedAnswer = userAnswer.content?.toLowerCase() || '';
+
+        if (correctAnswers.includes(userProvidedAnswer)) {
+          obtainedPoints += 1;
+        }
+      } else if (question.type === 'Sort') {
+        const correctOrder = question.sortAnswers.map((ans) => ans.order);
+        const userAnswerOrder = userAnswer.order;
+
+        const correct = correctOrder.every(
+          (ans, index) => ans === userAnswerOrder[index],
+        );
+        if (correct) {
+          obtainedPoints += 1;
+        }
+      }
+    }
+
+    return { obtainedPoints, maxPoints };
   }
 
   //to do

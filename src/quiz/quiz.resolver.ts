@@ -3,6 +3,7 @@ import { QuizService } from './quiz.service';
 import { Quiz } from './entities/quiz.entity';
 import { CreateQuizInput } from './dto/create-quiz.input';
 import { UpdateQuizInput } from './dto/update-quiz.input';
+import { UserAnswerDto } from './dto/user-answer.input';
 
 @Resolver(() => Quiz)
 export class QuizResolver {
@@ -23,15 +24,22 @@ export class QuizResolver {
     return this.quizService.findOne(id);
   }
 
-  //to do
   @Mutation(() => Quiz)
   updateQuiz(@Args('updateQuizInput') updateQuizInput: UpdateQuizInput) {
     return this.quizService.update(updateQuizInput.id, updateQuizInput);
   }
 
-  //to do
   @Mutation(() => Quiz)
   removeQuiz(@Args('id', { type: () => Int }) id: number) {
     return this.quizService.remove(id);
+  }
+
+  @Query(() => [Int])
+  async checkAnswers(
+    @Args('quizId', { type: () => Int }) quizId: number,
+    @Args('answers', { type: () => [UserAnswerDto] }) answers: UserAnswerDto[],
+  ) {
+    const result = await this.quizService.checkAnswers(quizId, answers);
+    return [result.obtainedPoints, result.maxPoints];
   }
 }
