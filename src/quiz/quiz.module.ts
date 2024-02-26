@@ -16,6 +16,7 @@ import { SortAnswer } from './entities/sort-answer.entity';
       TextAnswer,
       PredefinedAnswer,
       SortAnswer,
+      QuizService,
     ]),
   ],
   providers: [QuizResolver, QuizService],

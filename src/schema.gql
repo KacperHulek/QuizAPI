@@ -38,10 +38,15 @@ type Quiz {
   questions: [Question!]
 }
 
+type QuizResult {
+  obtainedPoints: Int!
+  maxPoints: Int!
+}
+
 type Query {
   getAllQuizzes: [Quiz!]!
   getQuiz(id: Int!): Quiz!
-  checkAnswers(quizId: Int!, answers: [UserAnswerDto!]!): [Int!]!
+  checkAnswers(quizId: Int!, answers: [UserAnswerDto!]!): QuizResult!
 }
 
 input UserAnswerDto {

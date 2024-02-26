@@ -24,6 +24,7 @@ export class QuizService {
     @InjectRepository(SortAnswer)
     private sortAnswersRepository: Repository<SortAnswer>,
   ) {}
+
   async create(createQuizInput: CreateQuizInput): Promise<Quiz> {
     const { name, questions: questionInputs } = createQuizInput;
 
@@ -147,7 +148,7 @@ export class QuizService {
       const userAnswer = answers.find((ans) => ans.questionId === question.id);
 
       if (!userAnswer) {
-        continue; // Move to the next question if no answer provided by user
+        continue;
       }
 
       maxPoints += 1; // Each question has 1 point
