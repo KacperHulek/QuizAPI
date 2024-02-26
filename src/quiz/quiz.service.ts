@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { PredefinedAnswer } from './entities/predefined-answer.entity';
 import { SortAnswer } from './entities/sort-answer.entity';
 import { UserAnswerDto } from './dto/user-answer.input';
+import * as _ from 'lodash';
 
 @Injectable()
 export class QuizService {
@@ -28,78 +29,123 @@ export class QuizService {
   async create(createQuizInput: CreateQuizInput): Promise<Quiz> {
     const { name, questions: questionInputs } = createQuizInput;
 
-    const newQuiz = this.quizzesRepository.create({ name });
-    const savedQuiz = await this.quizzesRepository.save(newQuiz);
+    const savedQuiz = await this.saveQuiz(name);
 
     const createdQuestions = await Promise.all(
       questionInputs.map(async (questionInput) => {
-        const { content, type, answers: answerInputs } = questionInput;
-        const newQuestion = this.questionsRepository.create({
-          content,
-          type,
-          quiz: savedQuiz,
-        });
-        const savedQuestion = await this.questionsRepository.save(newQuestion);
-
-        if (newQuestion.type === 'Single' || newQuestion.type === 'Multiple') {
-          let numCorrectAnswers = 0;
-
-          const createdAnswers = await Promise.all(
-            answerInputs.map(async (answerInput) => {
-              const { content: answerContent, isCorrect } = answerInput;
-              if (isCorrect) {
-                numCorrectAnswers++;
-              }
-              let newAnswer;
-              newAnswer = this.predefinedAnswersRepository.create({
-                content: answerContent,
-                isCorrect,
-                question: savedQuestion,
-              });
-              return await this.predefinedAnswersRepository.save(newAnswer);
-            }),
-          );
-
-          if (newQuestion.type === 'Single' && answerInputs.length < 2)
-            throw new Error('Invalid number of answers');
-          else if (newQuestion.type === 'Single' && numCorrectAnswers !== 1) {
-            throw new Error('Invalid number of correct answers');
-          } else {
-            savedQuestion.predefinedAnswers = createdAnswers;
-          }
-        } else if (newQuestion.type === 'Sort') {
-          const createdAnswers = await Promise.all(
-            answerInputs.map(async (answerInput) => {
-              const { content: answerContent, sortOrder: order } = answerInput;
-              let newAnswer;
-              newAnswer = this.sortAnswersRepository.create({
-                content: answerContent,
-                order,
-                question: savedQuestion,
-              });
-              return await this.sortAnswersRepository.save(newAnswer);
-            }),
-          );
-          savedQuestion.sortAnswers = createdAnswers;
-        } else if (newQuestion.type === 'Text') {
-          const createdAnswers = await Promise.all(
-            answerInputs.map(async (answerInput) => {
-              const { content: answerContent } = answerInput;
-              let newAnswer;
-              newAnswer = this.textAnswersRepository.create({
-                content: answerContent,
-                question: savedQuestion,
-              });
-              return await this.textAnswersRepository.save(newAnswer);
-            }),
-          );
-          savedQuestion.textAnswers = createdAnswers;
-        }
+        const savedQuestion = await this.saveQuestion(questionInput, savedQuiz);
+        await this.saveQuestionAnswers(questionInput, savedQuestion);
         return savedQuestion;
       }),
     );
+
     savedQuiz.questions = createdQuestions;
     return savedQuiz;
+  }
+
+  private async saveQuiz(name: string): Promise<Quiz> {
+    const newQuiz = this.quizzesRepository.create({ name });
+    return await this.quizzesRepository.save(newQuiz);
+  }
+
+  private async saveQuestion(
+    questionInput: any,
+    quiz: Quiz,
+  ): Promise<Question> {
+    const { content, type } = questionInput;
+    const newQuestion = this.questionsRepository.create({
+      content,
+      type,
+      quiz,
+    });
+    return await this.questionsRepository.save(newQuestion);
+  }
+
+  private async saveQuestionAnswers(
+    questionInput: any,
+    savedQuestion: Question,
+  ): Promise<void> {
+    const { type, answers: answerInputs } = questionInput;
+
+    if (type === 'Single' || type === 'Multiple') {
+      await this.savePredefinedAnswers(answerInputs, savedQuestion);
+    } else if (type === 'Sort') {
+      await this.saveSortAnswers(answerInputs, savedQuestion);
+    } else if (type === 'Text') {
+      await this.saveTextAnswers(answerInputs, savedQuestion);
+    }
+  }
+
+  private async savePredefinedAnswers(
+    answerInputs: any[],
+    savedQuestion: Question,
+  ): Promise<void> {
+    const createdAnswers = await Promise.all(
+      answerInputs.map(async (answerInput) => {
+        const { content: answerContent, isCorrect } = answerInput;
+        return await this.predefinedAnswersRepository.save({
+          content: answerContent,
+          isCorrect,
+          question: savedQuestion,
+        });
+      }),
+    );
+
+    if (savedQuestion.type === 'Single') {
+      if (answerInputs.length < 2) {
+        throw new Error('Invalid number of answers');
+      }
+      const numCorrectAnswers = answerInputs.filter(
+        (answer) => answer.isCorrect,
+      ).length;
+      if (numCorrectAnswers !== 1) {
+        throw new Error('Invalid number of correct answers');
+      }
+    }
+
+    savedQuestion.predefinedAnswers = createdAnswers;
+  }
+
+  private async saveSortAnswers(
+    answerInputs: any[],
+    savedQuestion: Question,
+  ): Promise<void> {
+    const createdAnswers = await Promise.all(
+      answerInputs.map(async (answerInput) => {
+        const { content: answerContent, sortOrder: order } = answerInput;
+        return await this.sortAnswersRepository.save({
+          content: answerContent,
+          order,
+          question: savedQuestion,
+        });
+      }),
+    );
+    savedQuestion.sortAnswers = createdAnswers;
+  }
+
+  private async saveTextAnswers(
+    answerInputs: any[],
+    savedQuestion: Question,
+  ): Promise<void> {
+    const createdAnswers = await Promise.all(
+      answerInputs.map(async (answerInput) => {
+        const { content: answerContent } = answerInput;
+        return await this.textAnswersRepository.save({
+          content: answerContent,
+          question: savedQuestion,
+        });
+      }),
+    );
+
+    savedQuestion.textAnswers = createdAnswers;
+
+    if (savedQuestion.type === 'Text') {
+      for (const answer of createdAnswers) {
+        const correctAnswers = savedQuestion.textAnswers.map((ans) =>
+          _.trim(ans.content.toLowerCase().replace(/[^\w\s]/g, '')),
+        );
+      }
+    }
   }
 
   findAll() {
@@ -167,9 +213,11 @@ export class QuizService {
         }
       } else if (question.type === 'Text') {
         const correctAnswers = question.textAnswers.map((ans) =>
-          ans.content.toLowerCase().trim(),
+          _.trim(ans.content.toLowerCase().replace(/[^\w\s]/g, '')),
         );
-        const userProvidedAnswer = userAnswer.content?.toLowerCase() || '';
+        const userProvidedAnswer = _.trim(
+          userAnswer.content?.toLowerCase().replace(/[^\w\s]/g, ''),
+        );
 
         if (correctAnswers.includes(userProvidedAnswer)) {
           obtainedPoints += 1;
