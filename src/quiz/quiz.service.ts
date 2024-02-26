@@ -223,12 +223,19 @@ export class QuizService {
           obtainedPoints += 1;
         }
       } else if (question.type === 'Sort') {
-        const correctOrder = question.sortAnswers.map((ans) => ans.order);
-        const userAnswerOrder = userAnswer.order;
-
-        const correct = correctOrder.every(
-          (ans, index) => ans === userAnswerOrder[index],
+        // Sort user answer IDs based on order
+        // Sort sortAnswers based on order property
+        const sortedSortAnswers = question.sortAnswers.sort(
+          (a, b) => a.order - b.order,
         );
+
+        // Extract sorted IDs from sorted sortAnswers
+        const sortedUserAnswerIds = sortedSortAnswers.map((ans) => ans.id);
+
+        // users answer - sorted ids
+        const userAnswerIdOrder = userAnswer.order;
+
+        const correct = _.isEqual(sortedUserAnswerIds, userAnswerIdOrder);
         if (correct) {
           obtainedPoints += 1;
         }
