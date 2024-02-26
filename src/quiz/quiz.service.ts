@@ -39,10 +39,8 @@ export class QuizService {
         });
         const savedQuestion = await this.questionsRepository.save(newQuestion);
 
-        if (newQuestion.type === 'Predefined') {
+        if (newQuestion.type === 'Single' || newQuestion.type === 'Multiple') {
           const createdAnswers = await Promise.all(
-            //tu można dodać logikę sprawdzającą czy 'Predefined' ma być single/multiple
-            //na podstawie newQuestion.type
             //data validation might be necessary
             answerInputs.map(async (answerInput) => {
               const { content: answerContent, isCorrect } = answerInput;
@@ -113,7 +111,7 @@ export class QuizService {
       where: { id },
     });
     quiz.questions = quiz.questions.filter((question) => {
-      if (question.type === 'Predefined') {
+      if (question.type === 'Single' || question.type === 'Multiple') {
         return question.predefinedAnswers.length > 0;
       } else if (question.type === 'Sort') {
         return question.sortAnswers.length > 0;
