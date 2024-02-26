@@ -1,7 +1,7 @@
 services:
   nestapp:
     container_name: nestapp
-    image: kacperxx/nestapp:1.0.0
+    image: QuizAPI/nestapp:1.0.0
     build:
       context: .
       dockerfile: Dockerfile

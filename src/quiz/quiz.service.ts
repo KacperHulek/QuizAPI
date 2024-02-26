@@ -223,12 +223,12 @@ export class QuizService {
           obtainedPoints += 1;
         }
       } else if (question.type === 'Sort') {
-        const correctOrder = question.sortAnswers.map((ans) => ans.order);
-        const userAnswerOrder = userAnswer.order;
-
-        const correct = correctOrder.every(
-          (ans, index) => ans === userAnswerOrder[index],
-        );
+        // Parse user-provided answer to extract sorted IDs
+        const userAnswerIds = JSON.parse(userAnswer.content);
+        // Extract correct order from sortAnswers
+        const correctOrder = question.sortAnswers.map((ans) => ans.id);
+        // Check if userAnswerIds matches the correctOrder
+        const correct = _.isEqual(userAnswerIds, correctOrder);
         if (correct) {
           obtainedPoints += 1;
         }
