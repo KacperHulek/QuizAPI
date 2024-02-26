@@ -9,7 +9,7 @@ export class QuizResolver {
   constructor(private readonly quizService: QuizService) {}
 
   @Mutation(() => Quiz)
-  createQuiz(@Args('createQuizInput') createQuizInput: CreateQuizInput) {
+  async createQuiz(@Args('createQuizInput') createQuizInput: CreateQuizInput) {
     return this.quizService.create(createQuizInput);
   }
 

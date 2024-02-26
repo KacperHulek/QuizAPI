@@ -40,10 +40,14 @@ export class QuizService {
         const savedQuestion = await this.questionsRepository.save(newQuestion);
 
         if (newQuestion.type === 'Single' || newQuestion.type === 'Multiple') {
+          let numCorrectAnswers = 0;
+
           const createdAnswers = await Promise.all(
-            //data validation might be necessary
             answerInputs.map(async (answerInput) => {
               const { content: answerContent, isCorrect } = answerInput;
+              if (isCorrect) {
+                numCorrectAnswers++;
+              }
               let newAnswer;
               newAnswer = this.predefinedAnswersRepository.create({
                 content: answerContent,
@@ -53,7 +57,14 @@ export class QuizService {
               return await this.predefinedAnswersRepository.save(newAnswer);
             }),
           );
-          savedQuestion.predefinedAnswers = createdAnswers;
+
+          if (newQuestion.type === 'Single' && answerInputs.length < 2)
+            throw new Error('Invalid number of answers');
+          else if (newQuestion.type === 'Single' && numCorrectAnswers !== 1) {
+            throw new Error('Invalid number of correct answers');
+          } else {
+            savedQuestion.predefinedAnswers = createdAnswers;
+          }
         } else if (newQuestion.type === 'Sort') {
           const createdAnswers = await Promise.all(
             answerInputs.map(async (answerInput) => {
@@ -110,16 +121,7 @@ export class QuizService {
       ],
       where: { id },
     });
-    quiz.questions = quiz.questions.filter((question) => {
-      if (question.type === 'Single' || question.type === 'Multiple') {
-        return question.predefinedAnswers.length > 0;
-      } else if (question.type === 'Sort') {
-        return question.sortAnswers.length > 0;
-      } else if (question.type === 'Text') {
-        return question.textAnswers.length > 0;
-      }
-      return false; // Unknown question type
-    });
+
     return quiz;
   }
 
